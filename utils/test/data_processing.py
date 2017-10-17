@@ -2,8 +2,9 @@
 Unit tests for development purposes
 """
 import mock
-import utils.data_processing as dp
 import unittest
+
+import utils.data_processing as dp
 
 
 class TestDataProcessing(unittest.TestCase):
