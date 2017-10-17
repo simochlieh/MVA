@@ -30,6 +30,9 @@ class LogisticRegression(BaseClassification):
         # adding a column of ones to include constant term
         self.data_x = np.hstack((data_x, np.ones((data_x.shape[0], 1))))
 
+        # Plot titles
+        self.title_training_plot = "Logistic Regression: Training"
+        self.title_test_plot = "Logistic Regression: Test"
 
     def train(self):
         iteration = 0
@@ -50,15 +53,14 @@ class LogisticRegression(BaseClassification):
         self.b = w[2, 0]
         self.log_likelihood = log_likelihood
 
-    def plot(self):
-        super(LogisticRegression, self).plot()
-        plt.title("Logistic Regression")
-
-        plt.figure(2)
-        plt.plot(xrange(len(self.log_likelihood)), self.log_likelihood, color='black')
-        plt.xlabel("Number of iterations")
-        plt.ylabel("Log-Likelihood")
-        plt.title("Logistic Regression")
+    def plot(self, data_x_test=None, data_y_test=None):
+        super(LogisticRegression, self).plot(data_x_test=data_x_test, data_y_test=data_y_test)
+        if data_x_test is None:
+            plt.figure()
+            plt.plot(xrange(len(self.log_likelihood)), self.log_likelihood, color='black')
+            plt.xlabel("Number of iterations")
+            plt.ylabel("Log-Likelihood")
+            plt.title("Logistic Regression: Training")
 
         plt.show()
 

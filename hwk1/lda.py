@@ -33,6 +33,9 @@ class LDA(BaseClassification):
         self.w = None
         self.b = None
 
+        self.title_training_plot = "Linear discriminant analysis: Training"
+        self.title_test_plot = "Linear discriminant analysis: Test"
+
     def train(self):
         """
         Affects the mle estimates to the instance attributes
@@ -61,14 +64,13 @@ class LDA(BaseClassification):
         self.b = (1. / 2. * (self.mu_1.dot(inv_sigma).dot(self.mu_1.T) - self.mu_0.dot(inv_sigma).dot(self.mu_0.T)) \
                  + math.log(self.pi / (1. - self.pi)))[0, 0]
 
-    def plot(self):
-        super(LDA, self).plot()
-
-        # Adding the mean and the variance
-        plt.plot(self.mu_1[:, 0], self.mu_1[:, 1], "rs", ms=8)
-        plt.plot(self.mu_0[:, 0], self.mu_0[:, 1], "r^", ms=8)
-        data_viz.plot_cov_ellipse(self.sigma, self.mu_0[0, :], color='g')
-        data_viz.plot_cov_ellipse(self.sigma, self.mu_1[0, :], color='b')
-        plt.title("Linear discriminant analysis")
+    def plot(self, data_x_test=None, data_y_test=None):
+        super(LDA, self).plot(data_x_test=data_x_test, data_y_test=data_y_test)
+        if data_x_test is None:
+            # Adding the mean and the variance
+            plt.plot(self.mu_1[:, 0], self.mu_1[:, 1], "rs", ms=8)
+            plt.plot(self.mu_0[:, 0], self.mu_0[:, 1], "r^", ms=8)
+            data_viz.plot_cov_ellipse(self.sigma, self.mu_0[0, :], color='g')
+            data_viz.plot_cov_ellipse(self.sigma, self.mu_1[0, :], color='b')
         plt.show()
 

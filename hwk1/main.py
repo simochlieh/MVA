@@ -11,31 +11,40 @@ from linear_regression import LinearRegression
 
 
 def main(dataset):
-    path = "classification_data_HWK1/classification_data_HWK1/classification%s.train" % dataset
-    data_x, data_y = data.parse_data_with_labels(os.path.abspath(path), dimension=2, delimiter="\t")
+    path_train = "classification_data_HWK1/classification_data_HWK1/classification%s.train" % dataset
+    path_test = "classification_data_HWK1/classification_data_HWK1/classification%s.test" % dataset
+    data_x_train, data_y_train = data.parse_data_with_labels(os.path.abspath(path_train), dimension=2, delimiter="\t")
+    data_x_test, data_y_test = data.parse_data_with_labels(os.path.abspath(path_test), dimension=2, delimiter="\t")
 
     # LDA
-    lda_model = LDA(data_x, data_y)
+    lda_model = LDA(data_x_train, data_y_train)
     lda_model.train()
 
     print "The bernoulli parameter pi is \n%s\n" % lda_model.pi
     print "The mean for the class {y=0} is \n%s\n" % lda_model.mu_0
     print "The mean for the class {y=1} is \n%s\n" % lda_model.mu_1
-    print "Sigma is: \n%s" % lda_model.sigma
+    print "Sigma is: \n%s\n" % lda_model.sigma
 
     lda_model.plot()
+
+    print "Misclassification error is: %.2f %%" % (lda_model.compute_misclassification_err(data_x_test, data_y_test) * 100)
+    lda_model.plot(data_x_test, data_y_test)
 
     # Logistic Regression
     # Adding an extra column to the matrix in order to include the constant term b in the model
     w0 = np.array([[0, 0, 1]]).T
-    logistic_reg = LogisticRegression(data_x, data_y, w0, nb_iterations=20, lambda_val=0.1)
+    logistic_reg = LogisticRegression(data_x_train, data_y_train, w0, nb_iterations=20, lambda_val=0.1)
     logistic_reg.train()
-    logistic_reg.plot()
 
     print "\nThe learnt parameter w is: \n%s\n" % logistic_reg.w
+    logistic_reg.plot()
+
+    print "Misclassification error is: %.2f %%" % (logistic_reg.compute_misclassification_err(data_x_test, data_y_test) * 100.)
+    logistic_reg.plot(data_x_test, data_y_test)
+
 
     # Linear Regression
-    lin_reg = LinearRegression(data_x, data_y, lambda_val=0)
+    lin_reg = LinearRegression(data_x_train, data_y_train, lambda_val=0)
     lin_reg.train()
 
     print "\nThe learnt parameter w is: \n%s\n" % lin_reg.w
@@ -43,7 +52,10 @@ def main(dataset):
 
     lin_reg.plot()
 
+    print "Misclassification error is: %.2f %%" % (lin_reg.compute_misclassification_err(data_x_test, data_y_test) * 100.)
+    lin_reg.plot(data_x_test, data_y_test)
+
 
 if __name__ == '__main__':
-    dataset = raw_input("Choose Dataset between A, B, C: ")
-    main(dataset)
+    dataset_prompt = raw_input("Choose Dataset between A, B, C: ")
+    main(dataset_prompt)
