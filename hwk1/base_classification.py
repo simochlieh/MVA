@@ -21,7 +21,8 @@ class BaseClassification(object):
 
         self.dataset_name = dataset_name
 
-        # Learnt parameter for the boundary line
+        # Learnt parameter for the boundary line: transpose(x) * a * x + transpose(w) * x + b
+        self.a = None
         self.w = None
         self.b = None
 
@@ -42,8 +43,13 @@ class BaseClassification(object):
             the misclassifiction error w.r.t the training dataset, the misclassifiction error w.r.t the test dataset
         """
         int_vec = np.vectorize(int)
-        data_y_model_test = int_vec(self.data_x_test[:, 0:2].dot(self.w) + self.b > 0.)
-        data_y_model_train = int_vec(self.data_x[:, 0:2].dot(self.w) + self.b > 0.)
+        if self.a is None:
+            data_y_model_test = int_vec(self.data_x_test[:, 0:2].dot(self.w) + self.b > 0.)
+            data_y_model_train = int_vec(self.data_x[:, 0:2].dot(self.w) + self.b > 0.)
+        else:
+            data_y_model_test = int_vec(self.evaluate_quadratic_boundary_func(self.data_x_test) > 0.)
+            data_y_model_train = int_vec(self.evaluate_quadratic_boundary_func(self.data_x) > 0.)
+
         training_error = (data_y_model_train - self.data_y).T.dot(data_y_model_train - self.data_y) / self.data_y.shape[0]
         test_error = (data_y_model_test - self.data_y_test).T.dot(data_y_model_test - self.data_y_test) / self.data_y_test.shape[0]
 
@@ -61,12 +67,48 @@ class BaseClassification(object):
         title = self.title_training_plot if not test_mode else self.title_test_plot
         successes_plt, losses_plt = self.plot_cloud_points_label(data_x, data_y)
         plt.autoscale(enable=False)
-        boundary, = self.plot_affine_boundary()
+        if self.a is None:
+            boundary, = self.plot_boundary()
+            plt.legend([successes_plt, losses_plt, boundary], ["y = 1", "y = 0", "boundary"])
+        else:
+            self.plot_boundary()
+            plt.legend([successes_plt, losses_plt], ["y = 1", "y = 0"])
 
-        plt.legend([successes_plt, losses_plt, boundary], ["y = 1", "y = 0", "boundary"])
         plt.xlabel("x1")
         plt.ylabel("x2")
         plt.title(title + " dataset %s" % self.dataset_name)
+
+    def plot_quadratic_boundary(self, x_min=-10, x_max=10, y_min=-10, y_max=10, **kwargs):
+
+        if self.a is None:
+            self.plot_affine_boundary(x_min, x_max, **kwargs)
+        else:
+            x1 = np.linspace(x_min, x_max, 50)
+            x2 = np.linspace(y_min, y_max, 50)
+            xx, yy = np.meshgrid(x1, x2)
+            Z = self.evaluate_quadratic_boundary_func(np.c_[xx.ravel(), yy.ravel()])
+            Z = np.reshape(Z, xx.shape)
+
+            return plt.contour(xx, yy, Z, levels=[0], color="grey", lw=3)
+
+    def evaluate_quadratic_boundary_func(self, x):
+        return np.diag(x.dot(self.a).dot(x.T)).reshape(1, x.shape[0]).T + x.dot(self.w) + self.b * np.ones((x.shape[0], 1))
+
+    def plot_affine_boundary(self, x_min=-10, x_max=10, **kwargs):
+        if self.a is None:
+            slope = - self.w[0, 0] / self.w[1, 0]
+            intercept = - self.b / self.w[1, 0]
+            xx = np.linspace(x_min, x_max, 2)
+            yy = slope * xx + intercept
+            return plt.plot(xx, yy, ls='-', lw=2, color="gray", **kwargs)
+        else:
+            raise Exception("the quadratic term transpose(x) * a * x is not null")
+
+    def plot_boundary(self):
+        if self.a is None:
+            return self.plot_affine_boundary()
+        else:
+            return self.plot_quadratic_boundary()
 
     @staticmethod
     def plot_cloud_points_label(data_x, data_y, **kwargs):
@@ -75,10 +117,3 @@ class BaseClassification(object):
         successes_plt, = plt.plot(successes[:, 0], successes[:, 1], "bs", color="b", ms=6, **kwargs)
         losses_plt, = plt.plot(losses[:, 0], losses[:, 1], "^", color='lawngreen', ms=6, **kwargs)
         return successes_plt, losses_plt
-
-    def plot_affine_boundary(self, x_min=-10, x_max=10, **kwargs):
-        slope = - self.w[0, 0] / self.w[1, 0]
-        intercept = - self.b / self.w[1, 0]
-        xx = np.linspace(x_min, x_max, 2)
-        yy = slope * xx + intercept
-        return plt.plot(xx, yy, ls='-', lw=2, color="gray", **kwargs)

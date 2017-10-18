@@ -10,6 +10,7 @@ sys.path.append("../")
 
 import utils.data_processing as data
 from lda import LDA
+from qda import QDA
 from logistic_regression import LogisticRegression
 from linear_regression import LinearRegression
 
@@ -17,6 +18,7 @@ from linear_regression import LinearRegression
 def main():
     datasets = ['A', 'B', 'C']
     lda_models = {}
+    qda_models = {}
     logistic_reg_models = {}
     lin_reg_models = {}
     for dataset in datasets:
@@ -38,11 +40,11 @@ def main():
         print "Test misclassification error is: %.2f %%\n" % (lda_models[dataset].compute_misclassification_err()[1] * 100)
 
         # Logistic Regression
-        print "\nLogistic Regression:\n"
+        print "\nLogistic_Regression_Dataset_%s:\n" % dataset
         # Adding an extra column to the matrix in order to include the constant term b in the model
         w0 = np.array([[0, 0, 1]]).T
         logistic_reg_models[dataset] = LogisticRegression(data_x_train, data_y_train, w0, data_x_test, data_y_test,
-                                                          dataset_name=dataset, nb_iterations=20, lambda_val=0)
+                                                          dataset_name=dataset, nb_iterations=20, lambda_val=0.01)
         logistic_reg_models[dataset].train()
 
         print "\nThe learnt parameter w is: \n%s\n" % logistic_reg_models[dataset].w
@@ -51,7 +53,7 @@ def main():
         print "Test misclassification error is: %.2f %%\n" % (logistic_reg_models[dataset].compute_misclassification_err()[1] * 100.)
 
         # Linear Regression
-        print("\nLinear Regression\n")
+        print("\nLinear_Regression_Dataset_%s\n") % dataset
         lin_reg_models[dataset] = LinearRegression(data_x_train, data_y_train, data_x_test, data_y_test,
                                           dataset_name=dataset, lambda_val=0)
         lin_reg_models[dataset].train()
@@ -62,6 +64,19 @@ def main():
 
         print "Training misclassification error is: %.2f %%\n" % (lin_reg_models[dataset].compute_misclassification_err()[0] * 100.)
         print "Test misclassification error is: %.2f %%\n" % (lin_reg_models[dataset].compute_misclassification_err()[1] * 100.)
+
+        # QDA
+        qda_models[dataset] = QDA(data_x_train, data_y_train, data_x_test, data_y_test, dataset_name=dataset)
+        qda_models[dataset].train()
+
+        print "\nQDA_Dataset_%s:\n" % dataset
+        print "The bernoulli parameter pi is \n%s\n" % qda_models[dataset].pi
+        print "The mean for the class {y=0} is \n%s\n" % qda_models[dataset].mu_0
+        print "The mean for the class {y=1} is \n%s\n" % qda_models[dataset].mu_1
+        print "Sigma for the class {y=0} is: \n%s\n" % qda_models[dataset].sigma_0
+        print "Sigma for the class {y=1} is: \n%s\n" % qda_models[dataset].sigma_1
+        print "Training misclassification error is: %.2f %%\n" % (qda_models[dataset].compute_misclassification_err()[0] * 100)
+        print "Test misclassification error is: %.2f %%\n" % (qda_models[dataset].compute_misclassification_err()[1] * 100)
 
     for model in [lda_models, logistic_reg_models, lin_reg_models]:
         plt.subplot(221)
@@ -92,9 +107,23 @@ def main():
 
         plt.show()
 
+    # QDA apart:
+    plt.subplot(221)
+    qda_models['A'].plot()
+    plt.subplot(222)
+    qda_models['B'].plot()
+    plt.subplot(212)
+    qda_models['C'].plot()
 
+    plt.show()
+    plt.subplot(221)
+    qda_models['A'].plot(test_mode=True)
+    plt.subplot(222)
+    qda_models['B'].plot(test_mode=True)
+    plt.subplot(212)
+    qda_models['C'].plot(test_mode=True)
 
-
+    plt.show()
 
 if __name__ == '__main__':
     main()
