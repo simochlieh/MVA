@@ -13,8 +13,8 @@ import utils.adv_math as adv_math
 
 class LogisticRegression(BaseClassification):
 
-    def __init__(self, data_x, data_y, w0, nb_iterations=20, lambda_val=0):
-        super(LogisticRegression, self). __init__(data_x, data_y)
+    def __init__(self, data_x, data_y, w0, data_x_test, data_y_test, dataset_name, nb_iterations=20, lambda_val=0):
+        super(LogisticRegression, self). __init__(data_x, data_y, data_x_test, data_y_test, dataset_name)
 
         # Initial point of the iteration
         self.w0 = w0
@@ -29,6 +29,7 @@ class LogisticRegression(BaseClassification):
 
         # adding a column of ones to include constant term
         self.data_x = np.hstack((data_x, np.ones((data_x.shape[0], 1))))
+        self.data_x_test = np.hstack((data_x_test, np.ones((data_x_test.shape[0], 1))))
 
         # Plot titles
         self.title_training_plot = "Logistic Regression: Training"
@@ -53,16 +54,14 @@ class LogisticRegression(BaseClassification):
         self.b = w[2, 0]
         self.log_likelihood = log_likelihood
 
-    def plot(self, data_x_test=None, data_y_test=None):
-        super(LogisticRegression, self).plot(data_x_test=data_x_test, data_y_test=data_y_test)
-        if data_x_test is None:
-            plt.figure()
-            plt.plot(xrange(len(self.log_likelihood)), self.log_likelihood, color='black')
-            plt.xlabel("Number of iterations")
-            plt.ylabel("Log-Likelihood")
-            plt.title("Logistic Regression: Training")
+    def plot(self, test_mode=False):
+        super(LogisticRegression, self).plot(test_mode)
 
-        plt.show()
+    def plot_convergence_func(self):
+        plt.plot(xrange(len(self.log_likelihood)), self.log_likelihood, color='black')
+        plt.xlabel("Number of iterations")
+        plt.ylabel("Log-Likelihood")
+        plt.title("Logistic Regression: Training dataset %s" % self.dataset_name)
 
     def compute_log_likelihood(self, w):
         return self.data_y.T.dot(adv_math.LOG(adv_math.SIGMOID_FUNC(self.data_x.dot(w))))[0, 0] + \

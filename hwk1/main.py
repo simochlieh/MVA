@@ -3,6 +3,7 @@ Main point of entry to simulate the different classification models
 """
 import os
 import sys
+import matplotlib.pyplot as plt
 import numpy as np
 
 sys.path.append("../")
@@ -13,54 +14,87 @@ from logistic_regression import LogisticRegression
 from linear_regression import LinearRegression
 
 
-def main(dataset):
-    path_train = "classification_data_HWK1/classification_data_HWK1/classification%s.train" % dataset
-    path_test = "classification_data_HWK1/classification_data_HWK1/classification%s.test" % dataset
-    data_x_train, data_y_train = data.parse_data_with_labels(os.path.abspath(path_train), dimension=2, delimiter="\t")
-    data_x_test, data_y_test = data.parse_data_with_labels(os.path.abspath(path_test), dimension=2, delimiter="\t")
+def main():
+    datasets = ['A', 'B', 'C']
+    lda_models = {}
+    logistic_reg_models = {}
+    lin_reg_models = {}
+    for dataset in datasets:
+        path_train = "classification_data_HWK1/classification_data_HWK1/classification%s.train" % dataset
+        path_test = "classification_data_HWK1/classification_data_HWK1/classification%s.test" % dataset
+        data_x_train, data_y_train = data.parse_data_with_labels(os.path.abspath(path_train), dimension=2, delimiter="\t")
+        data_x_test, data_y_test = data.parse_data_with_labels(os.path.abspath(path_test), dimension=2, delimiter="\t")
 
-    # LDA
-    lda_model = LDA(data_x_train, data_y_train)
-    lda_model.train()
+        # LDA
+        lda_models[dataset] = LDA(data_x_train, data_y_train, data_x_test, data_y_test, dataset_name=dataset)
+        lda_models[dataset].train()
 
-    print "\nLDA:\n"
-    print "The bernoulli parameter pi is \n%s\n" % lda_model.pi
-    print "The mean for the class {y=0} is \n%s\n" % lda_model.mu_0
-    print "The mean for the class {y=1} is \n%s\n" % lda_model.mu_1
-    print "Sigma is: \n%s\n" % lda_model.sigma
+        print "\nLDA_Dataset_%s:\n" % dataset
+        print "The bernoulli parameter pi is \n%s\n" % lda_models[dataset].pi
+        print "The mean for the class {y=0} is \n%s\n" % lda_models[dataset].mu_0
+        print "The mean for the class {y=1} is \n%s\n" % lda_models[dataset].mu_1
+        print "Sigma is: \n%s\n" % lda_models[dataset].sigma
+        print "Training misclassification error is: %.2f %%\n" % (lda_models[dataset].compute_misclassification_err()[0] * 100)
+        print "Test misclassification error is: %.2f %%\n" % (lda_models[dataset].compute_misclassification_err()[1] * 100)
 
-    lda_model.plot()
+        # Logistic Regression
+        print "\nLogistic Regression:\n"
+        # Adding an extra column to the matrix in order to include the constant term b in the model
+        w0 = np.array([[0, 0, 1]]).T
+        logistic_reg_models[dataset] = LogisticRegression(data_x_train, data_y_train, w0, data_x_test, data_y_test,
+                                                          dataset_name=dataset, nb_iterations=20, lambda_val=0)
+        logistic_reg_models[dataset].train()
 
-    print "Misclassification error is: %.2f %%\n" % (lda_model.compute_misclassification_err(data_x_test, data_y_test) * 100)
-    lda_model.plot(data_x_test, data_y_test)
+        print "\nThe learnt parameter w is: \n%s\n" % logistic_reg_models[dataset].w
+        print "\nThe learnt parameter b is: \n%s\n" % logistic_reg_models[dataset].b
+        print "Training misclassification error is: %.2f %%\n" % (logistic_reg_models[dataset].compute_misclassification_err()[0] * 100.)
+        print "Test misclassification error is: %.2f %%\n" % (logistic_reg_models[dataset].compute_misclassification_err()[1] * 100.)
 
-    # Logistic Regression
-    print "\nLogistic Regression:\n"
-    # Adding an extra column to the matrix in order to include the constant term b in the model
-    w0 = np.array([[0, 0, 1]]).T
-    logistic_reg = LogisticRegression(data_x_train, data_y_train, w0, nb_iterations=20, lambda_val=0.1)
-    logistic_reg.train()
+        # Linear Regression
+        print("\nLinear Regression\n")
+        lin_reg_models[dataset] = LinearRegression(data_x_train, data_y_train, data_x_test, data_y_test,
+                                          dataset_name=dataset, lambda_val=0)
+        lin_reg_models[dataset].train()
 
-    print "\nThe learnt parameter w is: \n%s\n" % logistic_reg.w
-    logistic_reg.plot()
+        print "The learnt parameter w is: \n%s\n" % lin_reg_models[dataset].w
+        print "\nThe learnt parameter b is: \n%s\n" % logistic_reg_models[dataset].b
+        print "The variance of Y computed for the latter w is: \n%s\n" % lin_reg_models[dataset].variance
 
-    print "Misclassification error is: %.2f %%\n" % (logistic_reg.compute_misclassification_err(data_x_test, data_y_test) * 100.)
-    logistic_reg.plot(data_x_test, data_y_test)
+        print "Training misclassification error is: %.2f %%\n" % (lin_reg_models[dataset].compute_misclassification_err()[0] * 100.)
+        print "Test misclassification error is: %.2f %%\n" % (lin_reg_models[dataset].compute_misclassification_err()[1] * 100.)
 
-    # Linear Regression
-    print("\nLinear Regression\n")
-    lin_reg = LinearRegression(data_x_train, data_y_train, lambda_val=0)
-    lin_reg.train()
+    for model in [lda_models, logistic_reg_models, lin_reg_models]:
+        plt.subplot(221)
+        model['A'].plot()
+        plt.subplot(222)
+        model['B'].plot()
+        plt.subplot(212)
+        model['C'].plot()
 
-    print "The learnt parameter w is: \n%s\n" % lin_reg.w
-    print "The variance of Y computed for the latter w is: \n%s\n" % lin_reg.variance
+        plt.show()
 
-    lin_reg.plot()
+        if model == logistic_reg_models:
+            plt.subplot(221)
+            model['A'].plot_convergence_func()
+            plt.subplot(222)
+            model['B'].plot_convergence_func()
+            plt.subplot(212)
+            model['C'].plot_convergence_func()
 
-    print "Misclassification error is: %.2f %%\n" % (lin_reg.compute_misclassification_err(data_x_test, data_y_test) * 100.)
-    lin_reg.plot(data_x_test, data_y_test)
+            plt.show()
+
+        plt.subplot(221)
+        model['A'].plot(test_mode=True)
+        plt.subplot(222)
+        model['B'].plot(test_mode=True)
+        plt.subplot(212)
+        model['C'].plot(test_mode=True)
+
+        plt.show()
+
+
+
 
 
 if __name__ == '__main__':
-    dataset_prompt = raw_input("Choose Dataset between A, B, C: ")
-    main(dataset_prompt)
+    main()

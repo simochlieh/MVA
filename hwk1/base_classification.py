@@ -9,13 +9,17 @@ import numpy as np
 
 class BaseClassification(object):
 
-    def __init__(self, data_x, data_y):
+    def __init__(self, data_x, data_y, data_x_test, data_y_test, dataset_name):
 
         # 2D dataset points
         self.data_x = data_x
+        self.data_x_test = data_x_test
 
         # labels
         self.data_y = data_y
+        self.data_y_test = data_y_test
+
+        self.dataset_name = dataset_name
 
         # Learnt parameter for the boundary line
         self.w = None
@@ -30,44 +34,39 @@ class BaseClassification(object):
         Affects the parameters to the instance attributes
         """
 
-    def compute_misclassification_err(self, data_x_test, data_y_test):
+    def compute_misclassification_err(self,):
         """
         :param data_x_test: test dataset for X
         :param data_y_test: test dataset for Y
         :return:
-            the misclassifiction error w.r.t the test dataset
+            the misclassifiction error w.r.t the training dataset, the misclassifiction error w.r.t the test dataset
         """
         int_vec = np.vectorize(int)
-        data_y_model = int_vec(data_x_test.dot(self.w) + self.b > 0.)
-        return (data_y_model - data_y_test).T.dot(data_y_model - data_y_test) / data_y_test.shape[0]
+        data_y_model_test = int_vec(self.data_x_test[:, 0:2].dot(self.w) + self.b > 0.)
+        data_y_model_train = int_vec(self.data_x[:, 0:2].dot(self.w) + self.b > 0.)
+        training_error = (data_y_model_train - self.data_y).T.dot(data_y_model_train - self.data_y) / self.data_y.shape[0]
+        test_error = (data_y_model_test - self.data_y_test).T.dot(data_y_model_test - self.data_y_test) / self.data_y_test.shape[0]
 
-    def plot(self, data_x_test=None, data_y_test=None):
+        return training_error, test_error
+
+    def plot(self, test_mode=False):
         """
         :param data_x_test: test dataset for X
         :param data_y_test: test dataset for Y
         :return:
         Nothing, only plots the figures
         """
-        if data_x_test is None:
-            successes_plt, losses_plt = self.plot_cloud_points_label(self.data_x, self.data_y)
-            plt.autoscale(enable=False)
+        data_x = self.data_x if not test_mode else self.data_x_test
+        data_y = self.data_y if not test_mode else self.data_y_test
+        title = self.title_training_plot if not test_mode else self.title_test_plot
+        successes_plt, losses_plt = self.plot_cloud_points_label(data_x, data_y)
+        plt.autoscale(enable=False)
+        boundary, = self.plot_affine_boundary()
 
-            boundary, = self.plot_affine_boundary()
-            plt.legend([successes_plt, losses_plt, boundary], ["y = 1", "y = 0", "boundary"])
-            plt.xlabel("x1")
-            plt.ylabel("x2")
-            plt.title(self.title_training_plot)
-
-        if data_x_test is not None and data_y_test is not None:
-            plt.figure()
-            successes_plt, losses_plt = self.plot_cloud_points_label(data_x_test, data_y_test)
-            plt.autoscale(enable=False)
-
-            boundary, = self.plot_affine_boundary()
-            plt.legend([successes_plt, losses_plt, boundary], ["y = 1", "y = 0", "boundary"])
-            plt.xlabel("x1")
-            plt.ylabel("x2")
-            plt.title(self.title_test_plot)
+        plt.legend([successes_plt, losses_plt, boundary], ["y = 1", "y = 0", "boundary"])
+        plt.xlabel("x1")
+        plt.ylabel("x2")
+        plt.title(title + " dataset %s" % self.dataset_name)
 
     @staticmethod
     def plot_cloud_points_label(data_x, data_y, **kwargs):
