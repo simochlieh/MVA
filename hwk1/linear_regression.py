@@ -3,7 +3,6 @@ This class implements a linear regression to a 2D model,
 with points X and labels Y in {0, 1}. The boundary we will learn is
 in the form f(x) = transpose(w) * x + b affine (with a constant term)
 """
-import matplotlib.pyplot as plt
 import numpy as np
 
 from base_classification import BaseClassification

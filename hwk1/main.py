@@ -53,7 +53,7 @@ def main():
         print "Test misclassification error is: %.2f %%\n" % (logistic_reg_models[dataset].compute_misclassification_err()[1] * 100.)
 
         # Linear Regression
-        print("\nLinear_Regression_Dataset_%s\n") % dataset
+        print "\nLinear_Regression_Dataset_%s\n" % dataset
         lin_reg_models[dataset] = LinearRegression(data_x_train, data_y_train, data_x_test, data_y_test,
                                           dataset_name=dataset, lambda_val=0)
         lin_reg_models[dataset].train()

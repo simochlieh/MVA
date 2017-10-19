@@ -2,7 +2,6 @@
 Base class for classification models,
 so far only for 2D models with 2 class labels
 """
-
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -37,10 +36,8 @@ class BaseClassification(object):
 
     def compute_misclassification_err(self,):
         """
-        :param data_x_test: test dataset for X
-        :param data_y_test: test dataset for Y
         :return:
-            the misclassifiction error w.r.t the training dataset, the misclassifiction error w.r.t the test dataset
+        the misclassifiction error w.r.t the training dataset, the misclassifiction error w.r.t the test dataset
         """
         int_vec = np.vectorize(int)
         if self.a is None:
@@ -57,10 +54,8 @@ class BaseClassification(object):
 
     def plot(self, test_mode=False):
         """
-        :param data_x_test: test dataset for X
-        :param data_y_test: test dataset for Y
-        :return:
         Nothing, only plots the figures
+        :param test_mode: will plot the test data
         """
         data_x = self.data_x if not test_mode else self.data_x_test
         data_y = self.data_y if not test_mode else self.data_y_test
