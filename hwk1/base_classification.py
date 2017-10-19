@@ -8,7 +8,7 @@ import numpy as np
 
 class BaseClassification(object):
 
-    def __init__(self, data_x, data_y, data_x_test, data_y_test, dataset_name):
+    def __init__(self, data_x, data_y, data_x_test=None, data_y_test=None, dataset_name=None):
 
         # 2D dataset points
         self.data_x = data_x

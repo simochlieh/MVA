@@ -14,7 +14,7 @@ import utils.data_viz as data_viz
 
 class QDA(BaseClassification):
 
-    def __init__(self, data_x, data_y, data_x_test, data_y_test, dataset_name):
+    def __init__(self, data_x, data_y, data_x_test=None, data_y_test=None, dataset_name=None):
         super(QDA, self).__init__(data_x, data_y, data_x_test, data_y_test, dataset_name)
 
         # Pi the Bernoulli parameter

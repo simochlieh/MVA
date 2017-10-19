@@ -13,7 +13,7 @@ import utils.adv_math as adv_math
 
 class LogisticRegression(BaseClassification):
 
-    def __init__(self, data_x, data_y, w0, data_x_test, data_y_test, dataset_name, nb_iterations=20, lambda_val=0):
+    def __init__(self, data_x, data_y, w0, data_x_test=None, data_y_test=None, dataset_name=None, nb_iterations=20, lambda_val=0):
         super(LogisticRegression, self). __init__(data_x, data_y, data_x_test, data_y_test, dataset_name)
 
         # Initial point of the iteration

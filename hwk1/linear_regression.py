@@ -10,7 +10,7 @@ from base_classification import BaseClassification
 
 class LinearRegression(BaseClassification):
 
-    def __init__(self, data_x, data_y, data_x_test, data_y_test, dataset_name, lambda_val=0):
+    def __init__(self, data_x, data_y, data_x_test=None, data_y_test=None, dataset_name=None, lambda_val=0):
         super(LinearRegression, self).__init__(data_x, data_y, data_x_test, data_y_test, dataset_name)
 
         # constant to penalize w
