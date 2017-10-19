@@ -83,13 +83,13 @@ class BaseClassification(object):
         if self.a is None:
             self.plot_affine_boundary(x_min, x_max, **kwargs)
         else:
-            x1 = np.linspace(x_min, x_max, 50)
-            x2 = np.linspace(y_min, y_max, 50)
+            x1 = np.linspace(x_min, x_max, 100)
+            x2 = np.linspace(y_min, y_max, 100)
             xx, yy = np.meshgrid(x1, x2)
             Z = self.evaluate_quadratic_boundary_func(np.c_[xx.ravel(), yy.ravel()])
             Z = np.reshape(Z, xx.shape)
 
-            return plt.contour(xx, yy, Z, levels=[0], color="grey", lw=3)
+            return plt.contour(xx, yy, Z, levels=[0], colors="grey", linewidths=2)
 
     def evaluate_quadratic_boundary_func(self, x):
         return np.diag(x.dot(self.a).dot(x.T)).reshape(1, x.shape[0]).T + x.dot(self.w) + self.b * np.ones((x.shape[0], 1))
@@ -114,6 +114,6 @@ class BaseClassification(object):
     def plot_cloud_points_label(data_x, data_y, **kwargs):
         successes = data_x[data_y[:, 0] == 1.]
         losses = data_x[data_y[:, 0] == 0.]
-        successes_plt, = plt.plot(successes[:, 0], successes[:, 1], "bs", color="b", ms=6, **kwargs)
-        losses_plt, = plt.plot(losses[:, 0], losses[:, 1], "^", color='lawngreen', ms=6, **kwargs)
+        successes_plt, = plt.plot(successes[:, 0], successes[:, 1], "bs", color="b", ms=3, **kwargs)
+        losses_plt, = plt.plot(losses[:, 0], losses[:, 1], "^", color='lawngreen', ms=3, **kwargs)
         return successes_plt, losses_plt

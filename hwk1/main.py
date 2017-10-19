@@ -78,7 +78,7 @@ def main():
         print "Training misclassification error is: %.2f %%\n" % (qda_models[dataset].compute_misclassification_err()[0] * 100)
         print "Test misclassification error is: %.2f %%\n" % (qda_models[dataset].compute_misclassification_err()[1] * 100)
 
-    for model in [lda_models, logistic_reg_models, lin_reg_models]:
+    for model in [lda_models, logistic_reg_models, lin_reg_models, qda_models]:
         plt.subplot(221)
         model['A'].plot()
         plt.subplot(222)
@@ -106,24 +106,6 @@ def main():
         model['C'].plot(test_mode=True)
 
         plt.show()
-
-    # QDA apart:
-    plt.subplot(221)
-    qda_models['A'].plot()
-    plt.subplot(222)
-    qda_models['B'].plot()
-    plt.subplot(212)
-    qda_models['C'].plot()
-
-    plt.show()
-    plt.subplot(221)
-    qda_models['A'].plot(test_mode=True)
-    plt.subplot(222)
-    qda_models['B'].plot(test_mode=True)
-    plt.subplot(212)
-    qda_models['C'].plot(test_mode=True)
-
-    plt.show()
 
 if __name__ == '__main__':
     main()

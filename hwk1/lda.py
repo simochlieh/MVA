@@ -65,8 +65,8 @@ class LDA(BaseClassification):
     def plot(self, test_mode=False):
         super(LDA, self).plot(test_mode)
         # Adding the mean and the variance
-        plt.plot(self.mu_1[:, 0], self.mu_1[:, 1], "rs", ms=8)
-        plt.plot(self.mu_0[:, 0], self.mu_0[:, 1], "r^", ms=8)
-        data_viz.plot_cov_ellipse(self.sigma, self.mu_0[0, :], color='g', lw=2)
-        data_viz.plot_cov_ellipse(self.sigma, self.mu_1[0, :], color='b', lw=2)
+        plt.plot(self.mu_1[:, 0], self.mu_1[:, 1], "rs", ms=6)
+        plt.plot(self.mu_0[:, 0], self.mu_0[:, 1], "r^", ms=6)
+        data_viz.plot_cov_ellipse(self.sigma, self.mu_0[0, :], color='g')
+        data_viz.plot_cov_ellipse(self.sigma, self.mu_1[0, :], color='b')
 

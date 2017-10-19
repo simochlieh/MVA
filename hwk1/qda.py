@@ -72,7 +72,7 @@ class QDA(BaseClassification):
     def plot(self, test_mode=False):
         super(QDA, self).plot(test_mode)
         # Adding the mean and the variance
-        plt.plot(self.mu_1[:, 0], self.mu_1[:, 1], "rs", ms=8)
-        plt.plot(self.mu_0[:, 0], self.mu_0[:, 1], "r^", ms=8)
+        plt.plot(self.mu_1[:, 0], self.mu_1[:, 1], "rs", ms=6)
+        plt.plot(self.mu_0[:, 0], self.mu_0[:, 1], "r^", ms=6)
         data_viz.plot_cov_ellipse(self.sigma_0, self.mu_0[0, :], color='g')
         data_viz.plot_cov_ellipse(self.sigma_1, self.mu_1[0, :], color='b')
