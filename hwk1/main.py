@@ -41,7 +41,6 @@ def main():
 
         # Logistic Regression
         print "\nLogistic_Regression_Dataset_%s:\n" % dataset
-        # Adding an extra column to the matrix in order to include the constant term b in the model
         w0 = np.array([[0, 0, 1]]).T
         logistic_reg_models[dataset] = LogisticRegression(data_x_train, data_y_train, w0, data_x_test, data_y_test,
                                                           dataset_name=dataset, nb_iterations=20, lambda_val=0.01)
