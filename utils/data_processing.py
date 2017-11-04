@@ -30,3 +30,28 @@ def parse_data_with_labels(filepath, dimension, delimiter):
         print "file %s not found" % filepath
 
     return data_x, data_y
+
+
+def parse_data_wo_labels(filepath, dimension, delimiter):
+    """
+    Parses the data stored in filepath into 1 numpy array
+    data (nb_lines*dimension) with float values.
+    The file shouldn't have any header and values are supposed to be numeric
+
+    :param filepath: string path of the data file
+    :param dimension: int
+    :param delimiter: string
+    :return: data
+    """
+    nb_lines = count_lines(filepath)
+    data = np.empty(shape=[nb_lines, dimension])
+    try:
+        with open(filepath) as f:
+            i = 0
+            for line in f:
+                data[i] = map(float, line.strip().split(delimiter))
+                i += 1
+    except IOError:
+        print "file %s not found" % filepath
+
+    return data

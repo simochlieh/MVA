@@ -1,0 +1,98 @@
+from copy import deepcopy
+import numpy as np
+import math
+import matplotlib.pyplot as plt
+
+from utils import adv_math
+
+
+class EmModel:
+
+    def __init__(self, data, k, mu_0, sigma_0, pi_0, nb_iter, sigma_prop_identity=False):
+        """
+
+        :param data: np array of shape (nb_rows, dimension)
+        :param k: the number of clusters
+        :param mu_0: Initial value of the means for every cluster
+                (a numpy array of shape (k, dimension))
+        :param sigma_0: Initial value of the co-variance matrix for every cluster
+                (a list of k numpy array of shape (2, 2))
+        :param pi_0: Initial values for the parameters of the multinomial distribution of the clusters
+        :param sigma_prop_identity: boolean, False by default, True if you want to suppose that sigma is proportional
+                to identity
+        """
+        self.data = data
+        self.n = data.shape[0]
+        self.dim = data.shape[1]
+        self.k = k
+        self.mu_0 = mu_0
+        self.sigma_0 = sigma_0
+        self.pi_0 = pi_0
+        self.nb_iter = nb_iter
+        self.sigma_prop_identity = sigma_prop_identity
+        self.log_likelihood = []
+
+        # Initializing the parameters we want to learn
+        self.mu = deepcopy(self.mu_0)
+        self.sigma = deepcopy(self.sigma_0)
+        self.pi = deepcopy(self.pi_0)
+        self.q = np.zeros(shape=(self.n, self.k))
+
+    def run(self):
+        self.log_likelihood.append(self.compute_log_likelihood())
+        for i in xrange(self.nb_iter):
+            print "iteration %d" % i
+            self.expectation_step()
+            self.maximization_step()
+            self.log_likelihood.append(self.compute_log_likelihood())
+
+    def expectation_step(self):
+        for i in xrange(self.n):
+            # Computing the sum of gaussian densities
+            sum_ = 0.
+            for k in xrange(self.k):
+                sum_ += self.pi[k] * adv_math.compute_gaussian(self.data[i, :].T, self.mu[k, :].T, self.sigma[k])
+
+            for k in xrange(self.k):
+                self.q[i, k] = self.pi[k] * adv_math.compute_gaussian(self.data[i, :].T, self.mu[k, :].T, self.sigma[k]) \
+                               / sum_
+
+    def maximization_step(self):
+        sum_q = np.sum(self.q)
+        for k in xrange(self.k):
+            sum_q_k = np.sum(self.q[:, k])
+            self.mu[k, :] = self.q[:, k].T.dot(self.data) / sum_q_k
+            if self.sigma_prop_identity:
+                # Computing a useful sum
+                sum_ = 0.
+                for i in xrange(self.n):
+                    x_i = self.data[i, :].reshape((2, 1))
+                    mu_k = self.mu[k, :].reshape((2, 1))
+                    sum_ += (x_i.T - mu_k.T).dot(x_i - mu_k) * self.q[i, k]
+                self.sigma[k] = 1. / 2. * sum_ / sum_q_k * np.identity(self.dim)
+                # print k
+                # print self.sigma[k]
+            else:
+                # Computing a useful sum
+                sum_i = np.zeros(shape=(2, 2))
+                for i in xrange(self.n):
+                    x_i = self.data[i, :].reshape((2, 1))
+                    mu_k = self.mu[k, :].reshape((2, 1))
+                    sum_i = sum_i + (x_i - mu_k).dot(x_i.T - mu_k.T) * self.q[i, k]
+                self.sigma[k] = sum_i / sum_q_k
+            self.pi[k] = sum_q_k / sum_q
+
+    def compute_log_likelihood(self):
+        sum_i = 0
+        for i in xrange(self.n):
+            sum_k = 0
+            for k in xrange(self.k):
+                sum_k += self.pi[k] * adv_math.compute_gaussian(self.data[i, :].T, self.mu[k, :].T, self.sigma[k])
+            sum_i += math.log(sum_k)
+        return sum_i
+
+    def plot(self):
+        plt.plot(self.data[:, 0], self.data[:, 1], "bs", ms=3)
+        for k in xrange(self.k):
+            plt.plot(self.mu[k, 0], self.mu[k, 1], "r^", ms=6)
+        plt.show()
