@@ -54,7 +54,8 @@ class EmModel:
                 sum_ += self.pi[k] * adv_math.compute_gaussian(self.data[i, :].T, self.mu[k, :].T, self.sigma[k])
 
             for k in xrange(self.k):
-                self.q[i, k] = self.pi[k] * adv_math.compute_gaussian(self.data[i, :].T, self.mu[k, :].T, self.sigma[k]) \
+                self.q[i, k] = self.pi[k] * adv_math.compute_gaussian(self.data[i, :].T, self.mu[k, :].T,
+                                                                      self.sigma[k]) \
                                / sum_
 
     def maximization_step(self):
