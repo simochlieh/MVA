@@ -3,7 +3,10 @@ import numpy as np
 import math
 import matplotlib.pyplot as plt
 
-from utils import adv_math
+from utils import adv_math, data_viz
+
+
+CHI_SQUARE_90 = 4.605
 
 
 class EmModel:
@@ -93,7 +96,9 @@ class EmModel:
         return sum_i
 
     def plot(self):
+        plt.axis('equal')
         plt.plot(self.data[:, 0], self.data[:, 1], "bs", ms=3)
         for k in xrange(self.k):
             plt.plot(self.mu[k, 0], self.mu[k, 1], "r^", ms=6)
+            data_viz.plot_cov_ellipse(self.sigma[k], self.mu[k, :], nstd=math.sqrt(CHI_SQUARE_90), color='r')
         plt.show()
