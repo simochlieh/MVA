@@ -23,7 +23,7 @@ class Kmeans:
         # The k centers we want to estimate of shape (d, 1)
         self.centers = None
 
-        # The closest centers to every point
+        # The closest center to every point
         self.closest_centers = pnd.DataFrame(np.hstack((np.zeros(shape=(self.n, 1)), self.data)))
         self.closest_centers.columns = ['cluster', 'x1', 'x2']
 
@@ -78,12 +78,25 @@ class Kmeans:
             print "After %d iterations, the distortion measured is %d" % (iter_, self.distortion)
 
     def plot(self):
-        datapoints, = plt.plot(self.data[:, 0], self.data[:, 1], "bs", ms=3)
-        center = None
+        datapoints = []
+        datapoints_label = []
+        colors_points = ["b", "r", "g", "y"]
+        colors_centers = ["cyan", "magenta", "lime", "gold"]
+        centers = []
+        centers_label = []
         for k in xrange(self.k):
-            center, = plt.plot(self.centers.loc[k, 'x1'], self.centers.loc[k, 'x2'], "r^", ms=6)
+            datapoint, = plt.plot(self.closest_centers["x1"][self.closest_centers["cluster"] == k],
+                                  self.closest_centers["x2"][self.closest_centers["cluster"] == k],
+                                  colors_points[k] + 'o', ms=3)
+            datapoints.append(datapoint)
+            center, = plt.plot(self.centers.loc[k, 'x1'], self.centers.loc[k, 'x2'],
+                               '^', color=colors_centers[k], ms=10)
+            centers.append(center)
 
-        plt.legend([datapoints, center], ["datapoints", "centers"])
+            datapoints_label.append("datapoints in cluster %s" % k)
+            centers_label.append("center of  cluster %s" % k)
+
+        plt.legend(datapoints + centers, datapoints_label + centers_label)
         plt.xlabel("x1")
         plt.ylabel("x2")
         plt.show()

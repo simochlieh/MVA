@@ -14,7 +14,7 @@ NB_ITER = {True: 60,
            False: 15}
 
 
-def run_em_model(data, best_kmean_model, sigma_prop_identity):
+def run_em_model(data, data_test, best_kmean_model, sigma_prop_identity):
 
     centers, sigma_0, pi_0 = init_param_values(data, best_kmean_model, sigma_prop_identity)
     # Creating the EM model
@@ -32,8 +32,14 @@ def run_em_model(data, best_kmean_model, sigma_prop_identity):
     plt.show()
 
     # Plotting the results and the learnt parameters
-    em_model.plot(title="Case where covariance matrix is proportional to identity" if sigma_prop_identity
-                        else "General Case")
+    em_model.plot(title="Case where covariance matrix is proportional to identity (training)" if sigma_prop_identity
+                        else "General Case (training)")
+    # And for the test data
+    em_model.plot(title="Case where covariance matrix is proportional to identity (test)" if sigma_prop_identity
+                        else "General Case (test)", data_test=data_test)
+
+    # Printing log-likelihood for test data
+    print em_model.compute_log_likelihood(data_test=data_test)
 
 
 def init_param_values(data, best_kmean_model, sigma_prop_identity):
@@ -97,10 +103,10 @@ def main():
     best_kmean_model.plot()
 
     # Case where the covariance matrix is proportional to identity
-    run_em_model(data, best_kmean_model, sigma_prop_identity=True)
+    run_em_model(data, data_test, best_kmean_model, sigma_prop_identity=True)
 
     # General Case
-    run_em_model(data, best_kmean_model, sigma_prop_identity=False)
+    run_em_model(data, data_test, best_kmean_model, sigma_prop_identity=False)
 
 
 if __name__ == "__main__":

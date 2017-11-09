@@ -7,6 +7,7 @@ from utils import adv_math, data_viz
 
 
 CHI_SQUARE_90 = 4.605
+NB_POINTS_AREA_PER_UNIT = 5
 
 
 class EmModel:
@@ -86,22 +87,76 @@ class EmModel:
                 self.sigma[k] = sum_i / sum_q_k
             self.pi[k] = sum_q_k / sum_q
 
-    def compute_log_likelihood(self):
+    def compute_log_likelihood(self, data_test=None):
+        if data_test is None:
+            data = self.data
+        else:
+            data = data_test
         sum_i = 0
         for i in xrange(self.n):
             sum_k = 0
             for k in xrange(self.k):
-                sum_k += self.pi[k] * adv_math.compute_gaussian(self.data[i, :].T, self.mu[k, :].T, self.sigma[k])
+                sum_k += self.pi[k] * adv_math.compute_gaussian(data[i, :].T, self.mu[k, :].T, self.sigma[k])
             sum_i += math.log(sum_k)
         return sum_i
 
-    def plot(self, title):
+    def plot(self, title, data_test=None):
+        if data_test is None:
+            data = self.data
+        else:
+            data = data_test
+        datapoints = []
+        datapoints_label = []
+        colors_points = ["b", "r", "g", "y"]
+        colors_centers = ["cyan", "magenta", "lime", "gold"]
+        centers = []
+        centers_label = []
+
         plt.axis('equal')
-        datapoints, = plt.plot(self.data[:, 0], self.data[:, 1], "bs", ms=3)
+
+        # First plotting the raw data
         for k in xrange(self.k):
-            plt.plot(self.mu[k, 0], self.mu[k, 1], "r^", ms=6)
-            data_viz.plot_cov_ellipse(self.sigma[k], self.mu[k, :], nstd=math.sqrt(CHI_SQUARE_90), color='r')
-        plt.legend([datapoints], ["datapoints"])
+            plt.plot(data[:, 0], data[:, 1], colors_points[k] + "s", ms=3)
+
+        # Representing the areas of dominance for every cluster
+        xmin, xmax = plt.xlim()
+        ymin, ymax = plt.ylim()
+
+        x = np.linspace(xmin, xmax, num=(xmax - xmin) * NB_POINTS_AREA_PER_UNIT)
+        y = np.linspace(ymin, ymax, num=(ymax - ymin) * NB_POINTS_AREA_PER_UNIT)
+
+        xx, yy = np.meshgrid(x, y)
+        grid = np.c_[xx.ravel(), yy.ravel()]
+        q = np.zeros(shape=(grid.shape[0], self.k))
+        print "Calculating the area of dominance for every cluster..."
+        for i in xrange(grid.shape[0]):
+            # Computing the sum of gaussian densities
+            sum_ = 0.
+            for k in xrange(self.k):
+                sum_ += self.pi[k] * adv_math.compute_gaussian(grid[i, :].T, self.mu[k, :].T, self.sigma[k])
+
+            for k in xrange(self.k):
+                q[i, k] = self.pi[k] * adv_math.compute_gaussian(grid[i, :].T, self.mu[k, :].T,
+                                                                      self.sigma[k]) \
+                               / sum_
+        clusters_per_meshgrid_point = np.argmax(q, axis=1)
+
+        # Plotting the latent variables learnt in the EM
+        for k in xrange(self.k):
+            datapoint, = plt.plot(grid[clusters_per_meshgrid_point == k, 0], grid[clusters_per_meshgrid_point == k, 1],
+                                  's', color=colors_centers[k], ms=4, alpha=0.1)
+            datapoints.append(datapoint)
+            datapoints_label.append("Area of dominance of cluster %s" % k)
+
+            center, = plt.plot(self.mu[k, 0], self.mu[k, 1], "^", color=colors_centers[k], ms=10)
+            centers.append(center)
+
+            data_viz.plot_cov_ellipse(self.sigma[k], self.mu[k, :], nstd=math.sqrt(CHI_SQUARE_90),
+                                      color=colors_centers[k], lw=2)
+
+            centers_label.append("center of  cluster %s" % k)
+
+        plt.legend(datapoints + centers, datapoints_label + centers_label)
         plt.xlabel("x1")
         plt.ylabel("x2")
         plt.title(title)
