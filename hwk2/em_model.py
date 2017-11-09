@@ -95,10 +95,14 @@ class EmModel:
             sum_i += math.log(sum_k)
         return sum_i
 
-    def plot(self):
+    def plot(self, title):
         plt.axis('equal')
-        plt.plot(self.data[:, 0], self.data[:, 1], "bs", ms=3)
+        datapoints, = plt.plot(self.data[:, 0], self.data[:, 1], "bs", ms=3)
         for k in xrange(self.k):
             plt.plot(self.mu[k, 0], self.mu[k, 1], "r^", ms=6)
             data_viz.plot_cov_ellipse(self.sigma[k], self.mu[k, :], nstd=math.sqrt(CHI_SQUARE_90), color='r')
+        plt.legend([datapoints], ["datapoints"])
+        plt.xlabel("x1")
+        plt.ylabel("x2")
+        plt.title(title)
         plt.show()

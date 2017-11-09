@@ -78,9 +78,14 @@ class Kmeans:
             print "After %d iterations, the distortion measured is %d" % (iter_, self.distortion)
 
     def plot(self):
-        plt.plot(self.data[:, 0], self.data[:, 1], "bs", ms=3)
+        datapoints, = plt.plot(self.data[:, 0], self.data[:, 1], "bs", ms=3)
+        center = None
         for k in xrange(self.k):
-            plt.plot(self.centers.loc[k, 'x1'], self.centers.loc[k, 'x2'], "r^", ms=6)
+            center, = plt.plot(self.centers.loc[k, 'x1'], self.centers.loc[k, 'x2'], "r^", ms=6)
+
+        plt.legend([datapoints, center], ["datapoints", "centers"])
+        plt.xlabel("x1")
+        plt.ylabel("x2")
         plt.show()
 
     def compute_distortion(self):
