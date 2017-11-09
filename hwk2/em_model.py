@@ -12,7 +12,7 @@ NB_POINTS_AREA_PER_UNIT = 5
 
 class EmModel:
 
-    def __init__(self, data, k, mu_0, sigma_0, pi_0, nb_iter, sigma_prop_identity=False):
+    def __init__(self, data, data_test, k, mu_0, sigma_0, pi_0, nb_iter, sigma_prop_identity=False):
         """
 
         :param data: np array of shape (nb_rows, dimension)
@@ -26,6 +26,7 @@ class EmModel:
                 to identity
         """
         self.data = data
+        self.data_test = data_test
         self.n = data.shape[0]
         self.dim = data.shape[1]
         self.k = k
@@ -87,11 +88,8 @@ class EmModel:
                 self.sigma[k] = sum_i / sum_q_k
             self.pi[k] = sum_q_k / sum_q
 
-    def compute_log_likelihood(self, data_test=None):
-        if data_test is None:
-            data = self.data
-        else:
-            data = data_test
+    def compute_log_likelihood(self, test=None):
+        data = self.data if not test else self.data_test
         sum_i = 0
         for i in xrange(self.n):
             sum_k = 0
@@ -100,11 +98,8 @@ class EmModel:
             sum_i += math.log(sum_k)
         return sum_i
 
-    def plot(self, title, data_test=None):
-        if data_test is None:
-            data = self.data
-        else:
-            data = data_test
+    def plot(self, title, test=None):
+        data = self.data if not test else self.data_test
         datapoints = []
         datapoints_label = []
         colors_points = ["b", "r", "g", "y"]
