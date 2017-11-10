@@ -44,6 +44,7 @@ class EmModel:
         self.q = np.zeros(shape=(self.n, self.k))
 
     def run(self):
+        print "Training the model:"
         self.log_likelihood.append(self.compute_log_likelihood())
         for i in xrange(self.nb_iter):
             print "iteration %d" % i
@@ -123,7 +124,8 @@ class EmModel:
         xx, yy = np.meshgrid(x, y)
         grid = np.c_[xx.ravel(), yy.ravel()]
         q = np.zeros(shape=(grid.shape[0], self.k))
-        print "Calculating the area of dominance for every cluster..."
+        print "Calculating the area of dominance for every cluster" + \
+              (" (training data)" if not test else " (test data)") + "..."
         for i in xrange(grid.shape[0]):
             # Computing the sum of gaussian densities
             sum_ = 0.

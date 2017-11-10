@@ -99,6 +99,7 @@ class Kmeans:
         plt.legend(datapoints + centers, datapoints_label + centers_label)
         plt.xlabel("x1")
         plt.ylabel("x2")
+        plt.title("Kmeans results")
         plt.show()
 
     def compute_distortion(self):

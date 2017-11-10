@@ -47,8 +47,8 @@ class QDA(BaseClassification):
         nb_successes = np.sum(self.data_y)
         successes = self.data_x[self.data_y[:, 0] == 1.]
         losses = self.data_x[self.data_y[:, 0] == 0.]
-        successes_ones_vector = np.ones((nb_successes, 1))
-        losses_ones_vector = np.ones((nb_points - nb_successes, 1))
+        successes_ones_vector = np.ones((int(nb_successes), 1))
+        losses_ones_vector = np.ones((int(nb_points - nb_successes), 1))
 
         # MLE estimates
         self.pi = nb_successes / nb_points

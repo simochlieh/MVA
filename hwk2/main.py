@@ -23,20 +23,22 @@ def run_em_model(data, data_test, best_kmean_model, sigma_prop_identity):
                          sigma_prop_identity=sigma_prop_identity)
 
     # Training the model
+    title = "Case where covariance matrix is proportional to identity" if sigma_prop_identity \
+        else "General Case"
+    print '\n' + title + ':\n'
     em_model.run()
 
     # Plotting log-likelihood
     plt.plot(range(1, len(em_model.log_likelihood) + 1), em_model.log_likelihood)
     plt.xlabel("Iteration number")
     plt.ylabel("Log-Likelihood")
+    plt.title("Log-Likelihood: " + title)
     plt.show()
 
     # Plotting the results and the learnt parameters
-    em_model.plot(title="Case where covariance matrix is proportional to identity (training)" if sigma_prop_identity
-                        else "General Case (training)")
+    em_model.plot(title="Results: " + title + " (training)")
     # And for the test data
-    em_model.plot(title="Case where covariance matrix is proportional to identity (test)" if sigma_prop_identity
-                        else "General Case (test)", test=True)
+    em_model.plot("Results: " + title + " (test)", test=True)
 
     # Printing log-likelihood for test data
     print "The Log-Likelihood for the test data is %.2f" % em_model.compute_log_likelihood(test=True)
@@ -97,6 +99,7 @@ def main():
     plt.plot(range(1, NB_INITIALIZATION_RETRIES + 1), distortions)
     plt.xlabel("Initialization number")
     plt.ylabel("Distortion")
+    plt.title("Running few Kmeans and measuring the distortion for each")
     plt.show()
 
     # Plotting the result
